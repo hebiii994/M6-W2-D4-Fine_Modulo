@@ -84,7 +84,8 @@ public class TurretController : MonoBehaviour
     }
     private void FireProjectile(Quaternion rotation)
     {
-        GameObject projectile = ObjectPooler.Instance.GetPooledObject();
+        GameObject projectile = ObjectPooler.Instance.SpawnFromPool("Projectile", _firePoint.position, _firePoint.rotation);
+
         if (projectile != null)
         {
             projectile.transform.position = _firePoint.position;

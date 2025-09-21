@@ -1,15 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ObjectPooler : MonoBehaviour
 {
-    public static ObjectPooler Instance; //sconsigliata come cosa?
 
-    [SerializeField] private GameObject _objectToPool;
-    [SerializeField] private int _initialPoolSize = 20;
+    [System.Serializable]
+    public class Pool
+    {
+        public string tag; //
+        public GameObject prefab; 
+        public int size; 
+    }
 
-    private List<GameObject> _pooledObjects;
+    public static ObjectPooler Instance;
+
+    public List<Pool> pools; 
+    private Dictionary<string, Queue<GameObject>> poolDictionary; 
 
     private void Awake()
     {
@@ -18,27 +24,42 @@ public class ObjectPooler : MonoBehaviour
 
     private void Start()
     {
-        _pooledObjects = new List<GameObject>();
-        for (int i = 0; i < _initialPoolSize; i++)
+        poolDictionary = new Dictionary<string, Queue<GameObject>>();
+
+        foreach (Pool pool in pools)
         {
-            GameObject obj = Instantiate(_objectToPool);
-            obj.SetActive(false);
-            _pooledObjects.Add(obj);
+            Queue<GameObject> objectPool = new Queue<GameObject>();
+
+            for (int i = 0; i < pool.size; i++)
+            {
+                GameObject obj = Instantiate(pool.prefab);
+                obj.SetActive(false);
+                objectPool.Enqueue(obj);
+            }
+
+            poolDictionary.Add(pool.tag, objectPool);
         }
     }
 
-    public GameObject GetPooledObject()
+
+    public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
-        foreach(GameObject obj in _pooledObjects)
+        if (!poolDictionary.ContainsKey(tag))
         {
-            if (!obj.activeInHierarchy)
-            {
-                return obj;
-            }
+            Debug.LogWarning("Pool con il tag '" + tag + "' non esiste.");
+            return null;
         }
-        GameObject newObj = Instantiate(_objectToPool);
-        newObj.SetActive(false);
-        _pooledObjects.Add(newObj);
-        return newObj;
+
+
+        GameObject objectToSpawn = poolDictionary[tag].Dequeue();
+
+
+        objectToSpawn.SetActive(true);
+        objectToSpawn.transform.position = position;
+        objectToSpawn.transform.rotation = rotation;
+
+        poolDictionary[tag].Enqueue(objectToSpawn);
+
+        return objectToSpawn;
     }
 }
