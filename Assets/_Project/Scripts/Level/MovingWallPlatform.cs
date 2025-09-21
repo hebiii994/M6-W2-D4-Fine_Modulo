@@ -1,81 +1,64 @@
 using UnityEngine;
+using System.Collections;
 
 public class MovingWallPlatform : MonoBehaviour
 {
-    [SerializeField] private Rigidbody _movingWallRb; 
-
-    [SerializeField] private float _interval = 4f;
-    [SerializeField] private float _initialDelay = 2f;
-
-    [SerializeField] private float _pushDistance = 5f;
-    [SerializeField] private float _pushSpeed = 10f;
-    [SerializeField] private float _returnSpeed = 2f;
-
-
-    private enum WallState { Idle, Pushing, Returning }
-    private WallState _currentState = WallState.Idle;
-
-    private Vector3 _wallStartPosition;
-    private Vector3 _wallEndPosition;
-    private float timer;
-
-    private void Awake()
+    private enum WallType
     {
-        if (_movingWallRb == null)
-        {
-            Debug.LogError("Il Rigidbody del muro non è stato assegnato!", this);
-            return;
-        }
-        _wallStartPosition = _movingWallRb.position;
-        _wallEndPosition = _wallStartPosition + transform.forward * _pushDistance;
-        timer = _initialDelay;
+        STATIC, // Non si muove
+        DYNAMIC // Si muove in un ciclo continuo
     }
 
-    private void Update()
+    [Header("Behavior")]
+    [SerializeField] private WallType _wallType = WallType.DYNAMIC;
+    [Tooltip("Delay before the wall starts moving the first time.")]
+    [SerializeField] private float _initialDelay = 0f;
+    [Tooltip("Delay after the wall reaches the end before returning.")]
+    [SerializeField] private float _pauseAtEndPoint = 2f;
+    [Tooltip("Delay after the wall returns to the start before pushing again.")]
+    [SerializeField] private float _pauseAtStartPoint = 2f;
+
+
+    [Header("Movement")]
+    [SerializeField] private Transform _startPoint;
+    [SerializeField] private Transform _endPoint;
+    [SerializeField] private float _speed = 2f;
+
+    private void Start()
     {
-        if (_currentState == WallState.Idle)
+
+        transform.position = _startPoint.position;
+
+        if (_wallType == WallType.DYNAMIC)
         {
-            timer -= Time.deltaTime;
-            if (timer <= 0)
-            {
-                _currentState = WallState.Pushing;
-            }
+            StartCoroutine(MovementLoop());
         }
     }
 
-    private void FixedUpdate()
+    private IEnumerator MovementLoop()
     {
-        if (_currentState == WallState.Pushing)
+        yield return new WaitForSeconds(_initialDelay);
+
+        while (true) 
         {
-            Push();
-        }
-        else if (_currentState == WallState.Returning)
-        {
-            Return();
+            yield return StartCoroutine(MoveTo(_endPoint.position));
+
+            yield return new WaitForSeconds(_pauseAtEndPoint);
+
+            yield return StartCoroutine(MoveTo(_startPoint.position));
+
+            yield return new WaitForSeconds(_pauseAtStartPoint);
+
         }
     }
 
-    private void Push()
+    private IEnumerator MoveTo(Vector3 destination)
     {
-
-        Vector3 newPosition = Vector3.MoveTowards(_movingWallRb.position, _wallEndPosition, _pushSpeed * Time.fixedDeltaTime);
-        _movingWallRb.MovePosition(newPosition);
-
-        if (Vector3.Distance(_movingWallRb.position, _wallEndPosition) < 0.01f)
+        while (Vector3.Distance(transform.position, destination) > 0.01f)
         {
-            _currentState = WallState.Returning;
+            transform.position = Vector3.MoveTowards(transform.position, destination, _speed * Time.deltaTime);
+            yield return null;
         }
-    }
-
-    private void Return()
-    {
-        Vector3 newPosition = Vector3.MoveTowards(_movingWallRb.position, _wallStartPosition, _returnSpeed * Time.fixedDeltaTime);
-        _movingWallRb.MovePosition(newPosition);
-
-        if (Vector3.Distance(_movingWallRb.position, _wallStartPosition) < 0.01f)
-        {
-            _currentState = WallState.Idle;
-            timer = _interval;
-        }
+        transform.position = destination;
     }
 }
