@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator _animator;
     [SerializeField] private float _bounceForce = 10f;
     private Vector3 _dir;
-    private Vector2 _inputVector;
+    private Vector3 _inputVector;
     private bool _canAttack = true;
     private bool _isApplyingAnimationMovement = false;
     private bool _wasGrounded;
@@ -91,7 +91,12 @@ public class PlayerController : MonoBehaviour
         float x = Input.GetAxis("Horizontal");
         float y = Input.GetAxis("Vertical");
 
-        _inputVector = new Vector2(x, y);
+        _inputVector = new Vector3(x, 0f, y);
+
+        if (_inputVector.magnitude > 1f)
+        {
+            _inputVector.Normalize();
+        }
 
         Vector3 forward = _mainCameraTransform.forward;
         Vector3 right = _mainCameraTransform.right;
@@ -100,7 +105,7 @@ public class PlayerController : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        _dir = (forward * y + right * x).normalized;
+        _dir = (forward * _inputVector.z) + (right * _inputVector.x);
     }
 
     private void HandleMovement()
