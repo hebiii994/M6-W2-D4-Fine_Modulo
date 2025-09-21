@@ -9,23 +9,21 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    //gestione chiavi
-    [SerializeField] private int _keysToCompleteLevel = 1;
+    private int _keysToCompleteLevel;
+    private int _totalCratesOnLevel;
+
+
     public int CollectedKeys { get; private set; }
     public UnityEvent<int, int> OnKeysChanged;
     public UnityEvent OnAllKeysCollected;
 
-    //gestione casse
-    [SerializeField] private int _totalCratesOnLevel = 1;
     public int DestroyedCrates { get; private set; }
     public UnityEvent<int, int> OnCratesChanged;
 
-    //conto alla rovescia
     [SerializeField] private float _levelTimeInSeconds = 180f;
     public float TimeRemaining { get; private set; }
     public UnityEvent<float> OnTimeChanged;
 
-    //gestione UI
     [SerializeField] private GameObject _gameOverPanel;
     [SerializeField] private GameObject _victoryPanel;
     [SerializeField] private GameObject _gameOverFirstButton;
@@ -41,8 +39,16 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return; 
         }
-       
+
+
+        _keysToCompleteLevel = GameObject.FindGameObjectsWithTag("Key").Length;
+        _totalCratesOnLevel = GameObject.FindGameObjectsWithTag("Crate").Length;
+
+        Debug.Log($"Livello avviato. Chiavi necessarie: {_keysToCompleteLevel}, Casse totali: {_totalCratesOnLevel}");
+
+
         IsGameActive = true;
         Time.timeScale = 1f;
         TimeRemaining = _levelTimeInSeconds;
@@ -52,7 +58,7 @@ public class GameManager : MonoBehaviour
     {
         _gameOverPanel.SetActive(false);
         _victoryPanel?.SetActive(false);
-        
+
         OnKeysChanged?.Invoke(CollectedKeys, _keysToCompleteLevel);
         OnCratesChanged?.Invoke(DestroyedCrates, _totalCratesOnLevel);
     }
