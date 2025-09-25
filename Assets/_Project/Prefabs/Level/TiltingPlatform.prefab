@@ -2685,7 +2685,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 529
+  m_VersionIndex: 532
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2702,8 +2702,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcfbf2ce3d0ff054486cd072246896c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxTiltAngle: 15
-  _tiltSpeed: 1.5
+  _maxTiltAngle: 10
+  _tiltSpeed: 1.25
 --- !u!114 &7740144484411712057
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2792,7 +2792,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4480826769275099861}
-  m_Material: {fileID: 13400000, guid: 4d10b8cc68546464aa2f9bf5748a5577, type: 2}
+  m_Material: {fileID: 13400000, guid: 5c7ffb2b1570a0845aae837818287f76, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

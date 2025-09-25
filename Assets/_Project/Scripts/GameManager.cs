@@ -61,6 +61,17 @@ public class GameManager : MonoBehaviour
 
         OnKeysChanged?.Invoke(CollectedKeys, _keysToCompleteLevel);
         OnCratesChanged?.Invoke(DestroyedCrates, _totalCratesOnLevel);
+
+        SetCursorForGameplay();
+    }
+
+    private void SetCursorForGameplay()
+    {
+        if (IsGameActive)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 
     private void Update()
